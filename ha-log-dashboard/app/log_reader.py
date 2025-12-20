@@ -78,6 +78,11 @@ class JournalReader:
             
         Returns:
             List of log entries as dictionaries.
+            
+        Note:
+            For large offsets, this method fetches (limit + offset) entries and slices
+            in memory. For better performance with large offsets, consider implementing
+            cursor-based pagination using journalctl's --after-cursor option.
         """
         try:
             # Build journalctl command with limit for efficiency
@@ -189,6 +194,8 @@ class JournalReader:
                 # Parse timestamp
                 try:
                     timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+                    # Ensure timezone awareness (assume UTC for HA logs)
+                    timestamp = timestamp.replace(tzinfo=timezone.utc)
                 except ValueError:
                     timestamp = self._parse_journal_timestamp(entry)
                 
@@ -205,8 +212,14 @@ class JournalReader:
             else:
                 # Fallback: use journal entry fields directly
                 timestamp = self._parse_journal_timestamp(entry)
-                priority = entry.get("PRIORITY", "6")
-                level = self._priority_to_level(int(priority))
+                
+                # Parse priority safely with fallback
+                try:
+                    priority = int(entry.get("PRIORITY", "6"))
+                except (ValueError, TypeError):
+                    priority = 6  # Default to INFO level
+                    
+                level = self._priority_to_level(priority)
                 
                 return {
                     "id": entry.get("__CURSOR", ""),
