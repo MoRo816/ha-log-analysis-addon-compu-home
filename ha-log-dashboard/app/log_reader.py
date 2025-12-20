@@ -23,6 +23,10 @@ class JournalReader:
     logs and parse them into structured data.
     """
     
+    # Regular expression pattern for parsing Home Assistant log format
+    # Format: YYYY-MM-DD HH:MM:SS LEVEL (component) message
+    HA_LOG_FORMAT_PATTERN = r'(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+(\w+)\s+\(([^)]+)\)\s+(.*)'
+    
     def __init__(self, unit_name: str = "home-assistant"):
         """
         Initialize the JournalReader.
@@ -105,7 +109,12 @@ class JournalReader:
                     cmd.extend(["-p", str(priority)])
             
             # Execute journalctl
-            logger.info(f"Executing journalctl command: {' '.join(cmd)}")
+            if logger.isEnabledFor(logging.DEBUG):
+                # Only log full command in debug mode
+                logger.debug(f"Executing journalctl command: {' '.join(cmd)}")
+            else:
+                logger.info(f"Reading logs from journal (unit: {self.unit_name}, limit: {fetch_count})")
+            
             result = subprocess.run(
                 cmd,
                 capture_output=True,
@@ -181,8 +190,7 @@ class JournalReader:
             
             # Try to parse Home Assistant log format
             # Format: YYYY-MM-DD HH:MM:SS LEVEL (component) message
-            log_pattern = r'(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+(\w+)\s+\(([^)]+)\)\s+(.*)'
-            match = re.match(log_pattern, message)
+            match = re.match(self.HA_LOG_FORMAT_PATTERN, message)
             
             if match:
                 timestamp_str, level, component, log_message = match.groups()
