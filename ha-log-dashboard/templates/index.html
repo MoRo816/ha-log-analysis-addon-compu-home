@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Home Assistant Log Analysis Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <meta name="description" content="Comprehensive dashboard for analyzing and managing Home Assistant logs">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">🏠 HA Log Analysis</h1>
+                <nav class="nav">
+                    <a href="#dashboard" class="nav-link active" data-view="dashboard">Dashboard</a>
+                    <a href="#issues" class="nav-link" data-view="issues">Issues</a>
+                    <a href="#integrations" class="nav-link" data-view="integrations">Integrations</a>
+                    <a href="#statistics" class="nav-link" data-view="statistics">Statistics</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Dashboard View -->
+            <section id="dashboard-view" class="view active">
+                <h2 class="section-title">Dashboard Overview</h2>
+                
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="stat-total-issues">0</h3>
+                            <p class="stat-label">Total Issues</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon critical">🔴</div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="stat-critical-issues">0</h3>
+                            <p class="stat-label">Critical Issues</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">⚠️</div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="stat-warning-issues">0</h3>
+                            <p class="stat-label">Warning Issues</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">✅</div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="stat-resolved-issues">0</h3>
+                            <p class="stat-label">Resolved Issues</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3 class="chart-title">Issues by Severity</h3>
+                        <div id="severity-chart" class="chart-container">
+                            <div class="chart-placeholder">Loading chart...</div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Issues by Status</h3>
+                        <div id="status-chart" class="chart-container">
+                            <div class="chart-placeholder">Loading chart...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Issues -->
+                <div class="recent-issues">
+                    <h3 class="subsection-title">Recent Issues</h3>
+                    <div id="recent-issues-list" class="issues-list">
+                        <div class="loading">Loading recent issues...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Issues View -->
+            <section id="issues-view" class="view">
+                <div class="view-header">
+                    <h2 class="section-title">Issues Management</h2>
+                    <button class="btn btn-primary" id="btn-create-issue">+ Create Issue</button>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters-panel">
+                    <div class="filter-group">
+                        <label for="filter-status">Status:</label>
+                        <select id="filter-status" class="filter-select">
+                            <option value="">All</option>
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-severity">Severity:</label>
+                        <select id="filter-severity" class="filter-select">
+                            <option value="">All</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filter-search">Search:</label>
+                        <input type="text" id="filter-search" class="filter-input" placeholder="Search issues...">
+                    </div>
+                    <button class="btn btn-secondary" id="btn-apply-filters">Apply Filters</button>
+                    <button class="btn btn-secondary" id="btn-clear-filters">Clear</button>
+                </div>
+
+                <!-- Issues List -->
+                <div id="issues-list" class="issues-list">
+                    <div class="loading">Loading issues...</div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="issues-pagination">
+                    <button class="btn btn-secondary" id="btn-prev-page">← Previous</button>
+                    <span class="page-info" id="page-info">Page 1</span>
+                    <button class="btn btn-secondary" id="btn-next-page">Next →</button>
+                </div>
+            </section>
+
+            <!-- Integrations View -->
+            <section id="integrations-view" class="view">
+                <h2 class="section-title">Integrations</h2>
+                
+                <div class="integrations-grid" id="integrations-grid">
+                    <div class="loading">Loading integrations...</div>
+                </div>
+            </section>
+
+            <!-- Statistics View -->
+            <section id="statistics-view" class="view">
+                <h2 class="section-title">Detailed Statistics</h2>
+                
+                <div class="stats-section">
+                    <h3 class="subsection-title">By Integration</h3>
+                    <div id="integration-stats" class="table-container">
+                        <div class="loading">Loading statistics...</div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3 class="subsection-title">Trend Analysis</h3>
+                    <div id="trend-chart" class="chart-container">
+                        <div class="chart-placeholder">Loading trend data...</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Issue Detail Modal -->
+    <div id="issue-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Issue Details</h3>
+                <button class="modal-close" id="btn-close-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <div class="loading">Loading...</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="btn-modal-save">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification-toast" class="notification-toast"></div>
+
+    <!-- Scripts -->
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
