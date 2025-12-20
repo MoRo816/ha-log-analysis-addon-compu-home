@@ -1,0 +1,26 @@
+name: "Log Analysis Dashboard"
+version: "1.0.0"
+slug: "ha_log_dashboard"
+description: "Web-based dashboard for managing and filtering issues from Home Assistant error logs"
+url: "https://github.com/ncecowboy/ha-log-analysis-addon"
+arch:
+  - amd64
+  - armv7
+  - arm64
+startup: application
+boot: auto
+hassio_api: true
+ports:
+  8080/tcp: 8080
+environment:
+  LOG_LEVEL: info
+map:
+  - type: config
+  - type: share
+options:
+  log_level: info
+  port: 8080
+schema:
+  log_level: list(debug|info|warning|error)?
+  port: port?
+image: "ncecowboy/{arch}-ha-log-dashboard"
