@@ -1,0 +1,10 @@
+build_from:
+  amd64: "python:3.11-alpine"
+  armv7: "python:3.11-alpine"
+  arm64: "python:3.11-alpine"
+labels:
+  org.opencontainers.image.title: "Log Analysis Dashboard"
+  org.opencontainers.image.description: "Web-based dashboard for managing and filtering issues from Home Assistant error logs"
+  org.opencontainers.image.vendor: "Home Assistant Log Analysis"
+args:
+  BUILD_FROM: "python:3.11-alpine"
