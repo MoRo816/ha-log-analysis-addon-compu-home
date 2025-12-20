@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-12-20
+
+### Changed
+- **BREAKING**: Switched from reading log files to using systemd journal
+- Log retrieval now uses `journalctl` to read Home Assistant logs from systemd journal
+- Updated API endpoints to support journal-based log reading with filtering
+
+### Added
+- New `JournalReader` class for interfacing with systemd journal
+- Support for time-based log filtering (`since` and `until` parameters)
+- Journal access permissions in AppArmor profile
+- systemd package added to Docker container
+- Improved error handling for journal access failures
+
+### Fixed
+- Log reading functionality now works with systems where log files are no longer available
+
 ## [1.0.0] - 2025-12-20
 
 ### Added

@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Log Analysis Dashboard is a web-based interface for managing issues detected in Home Assistant error logs. It integrates with the Home Assistant Log Analysis tool to provide a centralized place to view, filter, and manage issues.
+The Log Analysis Dashboard is a web-based interface for managing issues detected in Home Assistant error logs. It reads logs from the systemd journal using `journalctl` to provide a centralized place to view, filter, and manage issues.
+
+**Note:** This add-on requires access to the systemd journal. It automatically reads Home Assistant logs from the journal instead of traditional log files.
 
 ## Installation & Setup
 
@@ -51,6 +53,13 @@ The add-on automatically sets:
 - `HA_DATA_PATH`: Path to add-on data directory
 - `LOG_LEVEL`: Logging level
 - `PORT`: Web server port
+
+### Journal Access
+
+The add-on requires access to the systemd journal to read Home Assistant logs. This is automatically configured through:
+- `journald: true` in the add-on configuration
+- AppArmor permissions for journal access
+- Access to `/run/log/journal` and `/var/log/journal`
 
 ## Usage Guide
 
@@ -176,15 +185,20 @@ These files persist across add-on restarts and are backed up by Home Assistant.
 
 ### No Issues Appearing
 
-1. Run the Home Assistant Log Analysis tool first:
+1. Ensure systemd journal is accessible:
+   - The add-on needs access to the systemd journal
+   - Check that `journalctl` is available in the container
+   - Verify journal permissions in add-on logs
+
+2. Run the Home Assistant Log Analysis tool first:
    - It must generate the issues data
    - Check that it has found and processed logs
 
-2. Verify file permissions:
+3. Verify file permissions:
    - Log Analysis Dashboard needs read access to Home Assistant data
    - Check add-on logs for permission errors
 
-3. Refresh the dashboard:
+4. Refresh the dashboard:
    - Press F5 or click the Refresh button
    - Clear browser cache if needed
 
