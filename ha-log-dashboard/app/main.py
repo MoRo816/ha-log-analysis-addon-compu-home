@@ -14,6 +14,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 
+# Import API routers
+from api import api_router
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -64,6 +67,10 @@ TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
     logger.info(f"Static files mounted from {STATIC_DIR}")
+
+# Include API routers
+app.include_router(api_router)
+logger.info("API routers registered")
 
 
 # Health check endpoint
