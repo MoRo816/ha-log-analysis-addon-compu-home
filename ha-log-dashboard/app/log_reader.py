@@ -9,7 +9,7 @@ import json
 import logging
 import re
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 
 logger = logging.getLogger(__name__)
@@ -80,8 +80,12 @@ class JournalReader:
             List of log entries as dictionaries.
         """
         try:
-            # Build journalctl command
-            cmd = ["journalctl", "-u", self.unit_name, "-o", "json", "--no-pager"]
+            # Build journalctl command with limit for efficiency
+            # Note: journalctl doesn't support offset directly, so we fetch limit+offset entries
+            # and slice in memory. For very large offsets, consider cursor-based pagination.
+            fetch_count = limit + offset
+            
+            cmd = ["journalctl", "-u", self.unit_name, "-o", "json", "--no-pager", "-n", str(fetch_count)]
             
             # Add time range filters
             if since:
@@ -122,10 +126,8 @@ class JournalReader:
                     logger.warning(f"Failed to parse journal entry: {e}")
                     continue
             
-            # Apply pagination
-            start = offset
-            end = offset + limit
-            return logs[start:end]
+            # Apply offset to skip entries (in-memory pagination)
+            return logs[offset:offset + limit]
             
         except subprocess.TimeoutExpired:
             logger.error("journalctl command timed out")
@@ -234,10 +236,10 @@ class JournalReader:
         # Try __REALTIME_TIMESTAMP first (microseconds since epoch)
         if "__REALTIME_TIMESTAMP" in entry:
             timestamp_us = int(entry["__REALTIME_TIMESTAMP"])
-            return datetime.fromtimestamp(timestamp_us / 1000000)
+            return datetime.fromtimestamp(timestamp_us / 1000000, tz=timezone.utc)
         
         # Fallback to current time
-        return datetime.utcnow()
+        return datetime.now(timezone.utc)
     
     def _priority_to_level(self, priority: int) -> str:
         """
@@ -260,16 +262,20 @@ class JournalReader:
         else:
             return "DEBUG"
     
-    def get_log_statistics(self) -> Dict[str, Any]:
+    def get_log_statistics(self, max_logs: int = 10000) -> Dict[str, Any]:
         """
         Get statistics about logs in the journal.
+        
+        Args:
+            max_logs: Maximum number of logs to analyze for statistics.
+                     Default is 10000 to balance accuracy with performance.
         
         Returns:
             Dictionary containing log statistics.
         """
         try:
-            # Get all logs without limit to count them
-            all_logs = self.read_logs(limit=10000)  # Reasonable limit
+            # Get recent logs with a reasonable limit for statistics
+            all_logs = self.read_logs(limit=max_logs)
             
             stats = {
                 "total_logs": len(all_logs),
