@@ -1,0 +1,38 @@
+#include <tunables/global>
+
+profile ha_log_dashboard flags=attach_disconnected,mediate_deleted {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  # Allow capability
+  capability dac_override,
+  capability dac_read_search,
+  capability setgid,
+  capability setuid,
+
+  # Allow network
+  network inet stream,
+  network inet dgram,
+  network unix stream,
+  network unix dgram,
+
+  # Allow reading Home Assistant data
+  /config/** r,
+  /data/** rw,
+  /logs/** r,
+
+  # Allow reading share data
+  /share/** rw,
+
+  # Allow /proc and /sys
+  @{PROC}/** rk,
+  @{sys}/** rk,
+
+  # Allow writing to /tmp
+  /tmp/** rw,
+
+  # Allow Python and pip operations
+  /usr/local/bin/** ix,
+  /usr/local/lib/** r,
+  /usr/lib/** r,
+}
