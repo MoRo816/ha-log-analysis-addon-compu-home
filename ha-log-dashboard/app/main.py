@@ -17,12 +17,19 @@ from fastapi.responses import HTMLResponse, JSONResponse
 # Import API routers
 from .api import api_router
 
+# Import log reader
+from .log_reader import JournalReader
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+
+# Global journal reader instance
+journal_reader = None
 
 
 # Lifespan event handlers
@@ -33,8 +40,18 @@ async def lifespan(app: FastAPI):
     
     Handles startup and shutdown tasks.
     """
+    global journal_reader
+    
     # Startup
     logger.info("Starting Home Assistant Log Analysis Dashboard")
+    
+    # Initialize journal reader
+    try:
+        journal_reader = JournalReader(unit_name="home-assistant")
+        logger.info("Journal reader initialized successfully")
+    except RuntimeError as e:
+        logger.warning(f"Failed to initialize journal reader: {e}")
+        logger.warning("Log reading functionality will be limited")
     
     yield
     
@@ -177,6 +194,8 @@ async def get_logs(
     offset: int = Query(0, ge=0),
     level: str = Query(None),
     service: str = Query(None),
+    since: str = Query(None),
+    until: str = Query(None),
 ):
     """
     Get Home Assistant logs with optional filtering.
@@ -186,23 +205,53 @@ async def get_logs(
         offset: Number of logs to skip (default: 0)
         level: Filter by log level (INFO, WARNING, ERROR, DEBUG)
         service: Filter by service name
+        since: Start time for logs (e.g., "2025-01-01", "1 hour ago")
+        until: End time for logs
         
     Returns:
         dict: Paginated logs with metadata
     """
     try:
-        # TODO: Implement log retrieval logic
         logger.info(f"Fetching logs: limit={limit}, offset={offset}, level={level}, service={service}")
+        
+        if journal_reader is None:
+            logger.warning("Journal reader not available")
+            return {
+                "success": False,
+                "error": "Journal reader not available. systemd journal may not be accessible.",
+                "count": 0,
+                "limit": limit,
+                "offset": offset,
+                "logs": [],
+                "filters": {
+                    "level": level,
+                    "service": service,
+                    "since": since,
+                    "until": until
+                }
+            }
+        
+        # Read logs from systemd journal
+        logs = journal_reader.read_logs(
+            limit=limit,
+            offset=offset,
+            level=level,
+            service=service,
+            since=since,
+            until=until
+        )
         
         return {
             "success": True,
-            "count": 0,
+            "count": len(logs),
             "limit": limit,
             "offset": offset,
-            "logs": [],
+            "logs": logs,
             "filters": {
                 "level": level,
-                "service": service
+                "service": service,
+                "since": since,
+                "until": until
             }
         }
     except Exception as e:
@@ -219,25 +268,33 @@ async def get_log_statistics():
         dict: Log statistics including counts by level and service
     """
     try:
-        # TODO: Implement statistics calculation logic
         logger.info("Fetching log statistics")
         
-        return {
-            "success": True,
-            "total_logs": 0,
-            "by_level": {
-                "DEBUG": 0,
-                "INFO": 0,
-                "WARNING": 0,
-                "ERROR": 0,
-                "CRITICAL": 0
-            },
-            "by_service": {},
-            "time_range": {
-                "start": None,
-                "end": None
+        if journal_reader is None:
+            logger.warning("Journal reader not available")
+            return {
+                "success": False,
+                "error": "Journal reader not available",
+                "total_logs": 0,
+                "by_level": {
+                    "DEBUG": 0,
+                    "INFO": 0,
+                    "WARNING": 0,
+                    "ERROR": 0,
+                    "CRITICAL": 0
+                },
+                "by_service": {},
+                "time_range": {
+                    "start": None,
+                    "end": None
+                }
             }
-        }
+        
+        # Get statistics from journal
+        stats = journal_reader.get_log_statistics()
+        stats["success"] = True
+        
+        return stats
     except Exception as e:
         logger.error(f"Error fetching log statistics: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -249,16 +306,30 @@ async def get_log_detail(log_id: str):
     Get detailed information about a specific log entry.
     
     Args:
-        log_id: The ID of the log entry
+        log_id: The ID (cursor) of the log entry from systemd journal
         
     Returns:
         dict: Detailed log information
     """
     try:
-        # TODO: Implement log detail retrieval logic
         logger.info(f"Fetching log detail for ID: {log_id}")
         
-        raise HTTPException(status_code=404, detail="Log not found")
+        if journal_reader is None:
+            raise HTTPException(
+                status_code=503,
+                detail="Journal reader not available"
+            )
+        
+        # Get log entry from journal
+        log_entry = journal_reader.get_log_by_id(log_id)
+        
+        if log_entry is None:
+            raise HTTPException(status_code=404, detail="Log not found")
+        
+        return {
+            "success": True,
+            "log": log_entry
+        }
     except HTTPException:
         raise
     except Exception as e:
