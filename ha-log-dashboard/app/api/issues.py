@@ -17,7 +17,7 @@ from fastapi import APIRouter, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 # Initialize router
-router = APIRouter(prefix="/api/issues", tags=["issues"])
+router = APIRouter(prefix="/issues", tags=["issues"])
 
 
 # ============================================================================
@@ -36,7 +36,7 @@ class IssueCreate(BaseModel):
     """Model for creating a new issue."""
     title: str = Field(..., min_length=1, max_length=255, description="Issue title")
     description: str = Field(default="", description="Detailed description of the issue")
-    severity: str = Field(default="medium", regex="^(low|medium|high|critical)$", description="Issue severity level")
+    severity: str = Field(default="medium", pattern="^(low|medium|high|critical)$", description="Issue severity level")
     category: str = Field(default="", description="Issue category or component")
     source: str = Field(default="", description="Source of the issue (e.g., log file, user report)")
 
@@ -45,14 +45,14 @@ class IssueUpdate(BaseModel):
     """Model for updating an existing issue."""
     title: Optional[str] = Field(None, min_length=1, max_length=255, description="Issue title")
     description: Optional[str] = Field(None, description="Detailed description of the issue")
-    severity: Optional[str] = Field(None, regex="^(low|medium|high|critical)$", description="Issue severity level")
+    severity: Optional[str] = Field(None, pattern="^(low|medium|high|critical)$", description="Issue severity level")
     category: Optional[str] = Field(None, description="Issue category or component")
     source: Optional[str] = Field(None, description="Source of the issue")
 
 
 class IssueStatusUpdate(BaseModel):
     """Model for updating issue status."""
-    status: str = Field(..., regex="^(open|in_progress|resolved|closed|reopened)$", description="New status for the issue")
+    status: str = Field(..., pattern="^(open|in_progress|resolved|closed|reopened)$", description="New status for the issue")
     reason: Optional[str] = Field(None, description="Reason for status change")
 
 
@@ -77,7 +77,7 @@ class Issue(BaseModel):
     assignee: Optional[str] = Field(None, description="User assigned to resolve this issue")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": "issue-001",
                 "title": "Home Assistant service restart failures",

@@ -15,7 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 
 # Import API routers
-from api import api_router
+from .api import api_router
 
 # Configure logging
 logging.basicConfig(

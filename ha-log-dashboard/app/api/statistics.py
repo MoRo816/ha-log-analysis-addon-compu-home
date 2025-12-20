@@ -38,7 +38,7 @@ class OverallStatistics(BaseModel):
     average_resolution_time: Optional[float] = Field(None, description="Average time to resolve issues (in hours)")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "total_issues": 150,
                 "open_issues": 45,
@@ -193,9 +193,9 @@ async def get_statistics_by_severity(
            summary="Get statistics grouped by integration")
 async def get_statistics_by_integration(
     limit: int = Query(10, ge=1, le=100, description="Maximum number of integrations to return"),
-    sort_by: str = Query("total_issues", regex="^(total_issues|critical_count|integration_name)$",
+    sort_by: str = Query("total_issues", pattern="^(total_issues|critical_count|integration_name)$",
                         description="Field to sort by"),
-    order: str = Query("desc", regex="^(asc|desc)$", description="Sort order")
+    order: str = Query("desc", pattern="^(asc|desc)$", description="Sort order")
 ) -> List[IntegrationStatistics]:
     """
     Retrieve issue statistics grouped by integration.
@@ -266,7 +266,7 @@ async def get_statistics_by_status() -> List[StatusStatistics]:
 
 @router.get("/trend", response_model=TrendStatistics, summary="Get trend data over time")
 async def get_trend_statistics(
-    period: str = Query("day", regex="^(day|week|month)$", 
+    period: str = Query("day", pattern="^(day|week|month)$", 
                        description="Aggregation period (day, week, month)"),
     days: int = Query(30, ge=1, le=365, description="Number of days to include in trend"),
     severity: Optional[str] = Query(None, description="Filter by severity level")
@@ -339,7 +339,7 @@ async def get_dashboard_summary():
 
 @router.get("/export", summary="Export statistics data")
 async def export_statistics(
-    format: str = Query("json", regex="^(json|csv)$", description="Export format"),
+    format: str = Query("json", pattern="^(json|csv)$", description="Export format"),
     include_details: bool = Query(False, description="Include detailed breakdown")
 ):
     """

@@ -32,7 +32,7 @@ class IntegrationSummary(BaseModel):
     last_issue_date: Optional[datetime] = Field(None, description="Date of most recent issue")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "name": "homeassistant.components.zwave",
                 "display_name": "Z-Wave",
@@ -62,7 +62,7 @@ class IntegrationDetail(BaseModel):
     documentation_url: Optional[str] = Field(None, description="Link to integration documentation")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "name": "homeassistant.components.zwave",
                 "display_name": "Z-Wave",
@@ -92,7 +92,7 @@ class IntegrationIssue(BaseModel):
     updated_at: datetime = Field(..., description="Last update timestamp")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": "issue-001",
                 "title": "Z-Wave device timeout",
@@ -132,9 +132,9 @@ class IntegrationIssueListResponse(BaseModel):
 async def list_integrations(
     skip: int = Query(0, ge=0, description="Number of items to skip for pagination"),
     limit: int = Query(20, ge=1, le=100, description="Maximum number of items to return"),
-    sort_by: str = Query("issue_count", regex="^(name|issue_count|last_issue_date)$", 
+    sort_by: str = Query("issue_count", pattern="^(name|issue_count|last_issue_date)$", 
                         description="Field to sort by"),
-    order: str = Query("desc", regex="^(asc|desc)$", description="Sort order"),
+    order: str = Query("desc", pattern="^(asc|desc)$", description="Sort order"),
     has_issues: Optional[bool] = Query(None, description="Filter integrations with/without issues"),
 ) -> IntegrationListResponse:
     """
@@ -197,9 +197,9 @@ async def get_integration_issues(
     limit: int = Query(20, ge=1, le=100, description="Maximum number of items to return"),
     severity: Optional[str] = Query(None, description="Filter by severity level"),
     status: Optional[str] = Query(None, description="Filter by issue status"),
-    sort_by: str = Query("created_at", regex="^(created_at|updated_at|severity)$",
+    sort_by: str = Query("created_at", pattern="^(created_at|updated_at|severity)$",
                         description="Field to sort by"),
-    order: str = Query("desc", regex="^(asc|desc)$", description="Sort order"),
+    order: str = Query("desc", pattern="^(asc|desc)$", description="Sort order"),
 ) -> IntegrationIssueListResponse:
     """
     Retrieve all issues associated with a specific integration.
