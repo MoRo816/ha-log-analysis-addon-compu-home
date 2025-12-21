@@ -1,7 +1,7 @@
 ARG BUILD_FROM=python:3.11-alpine
 FROM ${BUILD_FROM}
 
-# Install system dependencies
+# Install system dependencies including systemd for journalctl
 RUN apk add --no-cache \
     bash \
     curl \
@@ -9,7 +9,8 @@ RUN apk add --no-cache \
     ca-certificates \
     gcc \
     musl-dev \
-    linux-headers
+    linux-headers \
+    systemd
 
 # Copy requirements
 COPY requirements.txt /tmp/

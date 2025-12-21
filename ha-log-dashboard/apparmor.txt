@@ -24,6 +24,12 @@ profile ha_log_dashboard flags=attach_disconnected,mediate_deleted {
   # Allow reading share data
   /share/** rw,
 
+  # Allow access to systemd journal
+  /run/log/journal/** r,
+  /var/log/journal/** r,
+  /bin/journalctl ix,
+  /usr/bin/journalctl ix,
+
   # Allow /proc and /sys
   @{PROC}/** rk,
   @{sys}/** rk,

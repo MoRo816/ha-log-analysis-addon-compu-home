@@ -1,7 +1,7 @@
 name: "Log Analysis Dashboard"
-version: "1.0.0"
+version: "1.1.0"
 slug: "ha_log_dashboard"
-description: "Web-based dashboard for managing and filtering issues from Home Assistant error logs"
+description: "Web-based dashboard for managing and filtering issues from Home Assistant logs via systemd journal"
 url: "https://github.com/ncecowboy/ha-log-analysis-addon"
 arch:
   - amd64
@@ -10,6 +10,7 @@ arch:
 startup: application
 boot: auto
 hassio_api: true
+journald: true
 ports:
   8080/tcp: 8080
 environment:
