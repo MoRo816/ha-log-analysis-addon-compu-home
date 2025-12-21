@@ -27,8 +27,12 @@
     "LOG_LEVEL": "info"
   },
   "map": [
-    "config",
-    "share"
+    {
+      "type": "config"
+    },
+    {
+      "type": "share"
+    }
   ],
   "options": {
     "log_level": "info",
