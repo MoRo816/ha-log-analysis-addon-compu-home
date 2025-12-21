@@ -1,0 +1,42 @@
+{
+  "name": "Log Analysis Dashboard",
+  "version": "1.1.0",
+  "slug": "ha_log_dashboard",
+  "description": "Web-based dashboard for managing and filtering issues from Home Assistant logs via systemd journal",
+  "url": "https://github.com/ncecowboy/ha-log-analysis-addon",
+  "arch": [
+    "amd64",
+    "armv7",
+    "arm64"
+  ],
+  "startup": "application",
+  "boot": "auto",
+  "hassio_api": true,
+  "hassio_role": "default",
+  "homeassistant_api": true,
+  "homeassistant": "2023.12.0",
+  "journald": true,
+  "apparmor": true,
+  "ports": {
+    "8080/tcp": 8080
+  },
+  "ports_description": {
+    "8080/tcp": "Web interface"
+  },
+  "environment": {
+    "LOG_LEVEL": "info"
+  },
+  "map": [
+    "config",
+    "share"
+  ],
+  "options": {
+    "log_level": "info",
+    "port": 8080
+  },
+  "schema": {
+    "log_level": "list(debug|info|warning|error)?",
+    "port": "port?"
+  },
+  "image": "ncecowboy/{arch}-ha-log-dashboard"
+}
