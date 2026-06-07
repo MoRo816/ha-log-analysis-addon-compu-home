@@ -6,7 +6,7 @@ url: "https://github.com/ncecowboy/ha-log-analysis-addon"
 arch:
   - amd64
   - armv7
-  - arm64
+  - aarch64
 startup: application
 boot: auto
 hassio_api: true
