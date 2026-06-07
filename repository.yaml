@@ -1,3 +1,3 @@
-name: Home Assistant Log Analysis Add-ons
-url: https://github.com/ncecowboy/ha-log-analysis-addon
-maintainer: ncecowboy <ncecowboy@github.com>
+name: Home Assistant Log Analysis Add-ons - with arm64 changed to aarch64
+url: https://github.com/MoRo816/ha-log-analysis-addon-compu-home
+maintainer: MoRo816 <MoRo816@github.com>
