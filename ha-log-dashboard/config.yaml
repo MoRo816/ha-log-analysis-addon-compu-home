@@ -25,4 +25,4 @@ schema:
   log_level: list(debug|info|warning|error)?
   port: port?
 image: "ncecowboy/{arch}-ha-log-dashboard"
-apparmor: false
+apparmor: true
