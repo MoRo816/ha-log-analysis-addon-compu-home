@@ -1,5 +1,5 @@
 name: "Log Analysis Dashboard"
-version: "2.0.0"
+version: "2.0.1"
 slug: "ha_log_dashboard"
 description: "Web-based dashboard for managing and filtering issues from Home Assistant logs via systemd journal"
 url: "https://github.com/ncecowboy/ha-log-analysis-addon"
